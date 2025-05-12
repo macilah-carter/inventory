@@ -1,0 +1,88 @@
+CREATE DATABASE IF NOT EXISTS inventoryTracking;
+USE inventoryTracking;
+
+CREATE TABLE IF NOT EXISTS products(
+    productId INT AUTO_INCREMENT PRIMARY KEY,
+    ProductName VARCHAR(100) NOT NULL,
+    Description TEXT,
+    Category VARCHAR(50),
+    SKU VARCHAR(50) UNIQUE,
+    price DECIMAL(10, 2) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    FOREIGN KEY (CategoryID) REFERENCES Categories(CategoryID)
+    ON DELETE SET NULL
+)
+
+CREATE TABLE IF NOT EXISTS inventories(
+    inventoryId INT AUTO_INCREMENT PRIMARY KEY,
+    productId INT NOT NULL,
+    QuantityInStock INT NOT NULL DEFAULT 0,
+    ReorderLevel INT DEFAULT 10,
+    LastUpdated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (productId) REFERENCES products(productId)
+)
+
+CREATE TABLE IF NOT EXISTS suppliers(
+    supplierId INT AUTO_INCREMENT PRIMARY KEY,
+    SupplierName VARCHAR(100) NOT NULL,
+    ContactName VARCHAR(100),
+    Phone VARCHAR(50),
+    Email VARCHAR(100),
+    Address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE IF NOT EXISTS customers(
+    customerId INT AUTO_INCREMENT PRIMARY KEY,
+    CustomerName VARCHAR(100) NOT NULL,
+    ContactName VARCHAR(100),
+    Phone VARCHAR(50),
+    Email VARCHAR(100),
+    Address TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+
+CREATE TABLE IF NOT EXISTS sales(
+    saleId INT AUTO_INCREMENT PRIMARY KEY,
+    productId INT NOT NULL,
+    customerId INT NOT NULL,
+    QuantitySold INT NOT NULL,
+    SaleDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (productId) REFERENCES products(productId),
+    FOREIGN KEY (customerId) REFERENCES customers(customerId)
+)
+CREATE TABLE Sales (
+    SaleID INT PRIMARY KEY AUTO_INCREMENT,
+    CustomerID INT,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL,
+    SaleDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    TotalAmount DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID) ON DELETE SET NULL,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS Purchases (
+    PurchaseID INT PRIMARY KEY AUTO_INCREMENT,
+    SupplierID INT NOT NULL,
+    ProductID INT NOT NULL,
+    Quantity INT NOT NULL,
+    PurchaseDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    TotalCost DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (SupplierID) REFERENCES Suppliers(SupplierID) ON DELETE CASCADE,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+);
+
+CREATE TABLE Categories (
+    CategoryID INT PRIMARY KEY AUTO_INCREMENT,
+    CategoryName VARCHAR(100) NOT NULL UNIQUE,
+    Description TEXT
+);
+CREATE TABLE IF NOT EXISTS InventoryTransactions (
+    TransactionID INT PRIMARY KEY AUTO_INCREMENT,
+    ProductID INT NOT NULL,
+    TransactionType ENUM('IN', 'OUT') NOT NULL,
+    Quantity INT NOT NULL,
+    TransactionDate TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (ProductID) REFERENCES Products(ProductID) ON DELETE CASCADE
+);
